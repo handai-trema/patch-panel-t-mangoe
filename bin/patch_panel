@@ -41,5 +41,35 @@ module PatchPanelApp
     end
   end
 
+#ミラーリング用のコマンドの実装
+  desc 'mirroring from port#1 to port#2'
+  arg_name 'dpid port#1 port#2'
+  command :mirror do |c|
+    c.desc 'Location to find socket files'
+    c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+    c.action do |_global_options, options, args|
+      dpid = args[0].hex
+      port1 = args[1].to_i
+      port2 = args[2].to_i
+      Trema.trema_process('PatchPanel', options[:socket_dir]).controller.
+        mirror_patch(dpid, port1, port2)
+    end
+  end
+
+#パッチとミラーリングの一覧を表示するコマンドの実装
+  desc 'show list of patch and mirror'
+  arg_name 'dpid'
+  command :list do |c|
+    c.desc 'Location to find socket files'
+    c.flag [:S, :socket_dir], default_value: Trema::DEFAULT_SOCKET_DIR
+
+    c.action do |_global_options, options, args|
+      dpid = args[0].hex
+      Trema.trema_process('PatchPanel', options[:socket_dir]).controller.
+        show_list(dpid)
+    end
+  end
+
   exit run(ARGV)
 end
